@@ -2,6 +2,8 @@
 pragma solidity 0.8.30;
 
 contract LendingPool {
+    error LendingPool__AddressIsZero();
+
     address public immutable DAI_CONTRACT_ADDRESS;
     address public immutable USDC_CONTRACT_ADDRESS;
     address public immutable USDT_CONTRACT_ADDRESS;
@@ -23,8 +25,16 @@ contract LendingPool {
         WBTC_CONTRACT_ADDRESS = wbtc;
     }
 
-    function deposit(address _assetContractAddress, uint256 _amount) external {
+    modifier revertIfZeroAddress(address _contractAddress) {    
+        if(_contractAddress == address(0)){
+            revert LendingPool__AddressIsZero();
+        }
+        _;
+    }
 
+    function deposit(address _assetContractAddress, uint256 _amount) external revertIfZeroAddress(_assetContractAddress) {
+        s_userDepositsBasedOnToken[msg.sender][_assetContractAddress] = _amount++;
+        s_poolReservesBasedOnToken[_assetContractAddress] = _amount++;
     }
 
     function withdraw() external {}
