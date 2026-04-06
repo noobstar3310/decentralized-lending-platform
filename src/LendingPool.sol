@@ -2,6 +2,7 @@
 pragma solidity 0.8.30;
 
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {DataConsumer} from "./DataConsumer.sol";
 
 interface AggregatorV3Interface {
     function latestRoundData()
@@ -33,11 +34,10 @@ contract LendingPool {
     uint256 public constant MAX_HEALTH_FACTOR = type(uint256).max;
 
     // Immutables
-    address public immutable DAI_CONTRACT_ADDRESS;
-    address public immutable USDC_CONTRACT_ADDRESS;
-    address public immutable USDT_CONTRACT_ADDRESS;
-    address public immutable WETH_CONTRACT_ADDRESS;
-    address public immutable WBTC_CONTRACT_ADDRESS;
+    address public immutable i_dai; // 0x14866185B1962B63C3Ea9E03Bc1da838bab34C19
+    address public immutable i_usdc; // 0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E
+    address public immutable i_weth; // 0x694AA1769357215DE4FAC081bf1f309aDC325306
+    address public immutable i_wbtc; // 0x5fb1616F78dA7aFC9FF79e0371741a747D2a7F22
 
     // State variables
     address[] public s_supportedTokens;
@@ -50,32 +50,29 @@ contract LendingPool {
     constructor(
         address dai,
         address usdc,
-        address usdt,
         address weth,
         address wbtc,
         address daiPriceFeed,
         address usdcPriceFeed,
-        address usdtPriceFeed,
         address wethPriceFeed,
         address wbtcPriceFeed
     ) {
-        DAI_CONTRACT_ADDRESS = dai;
-        USDC_CONTRACT_ADDRESS = usdc;
-        USDT_CONTRACT_ADDRESS = usdt;
-        WETH_CONTRACT_ADDRESS = weth;
-        WBTC_CONTRACT_ADDRESS = wbtc;
+        i_dai = dai;
+        i_usdc = usdc;
+        i_weth = weth;
+        i_wbtc = wbtc;
 
         s_supportedTokens.push(dai);
         s_supportedTokens.push(usdc);
-        s_supportedTokens.push(usdt);
         s_supportedTokens.push(weth);
         s_supportedTokens.push(wbtc);
 
         s_tokenToPriceFeed[dai] = daiPriceFeed;
         s_tokenToPriceFeed[usdc] = usdcPriceFeed;
-        s_tokenToPriceFeed[usdt] = usdtPriceFeed;
         s_tokenToPriceFeed[weth] = wethPriceFeed;
         s_tokenToPriceFeed[wbtc] = wbtcPriceFeed;
+
+        DataConsumer dataConsumer = new DataConsumer(daiPriceFeed, usdcPriceFeed, wethPriceFeed, wbtcPriceFeed);
     }
 
     modifier revertIfZeroAddress(address _contractAddress) {
