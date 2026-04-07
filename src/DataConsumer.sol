@@ -11,6 +11,8 @@ contract DataConsumer {
     AggregatorV3Interface internal wethDataFeed;
     AggregatorV3Interface internal wbtcDataFeed;
 
+    int256 public constant PRICE_FEED_DECIMALS = 8;
+
 
     constructor (address _dai, address _usdc, address _weth, address _wbtc) {
         if (_dai == address(0) || _usdc == address(0) || _weth == address(0) || _wbtc == address(0)){
@@ -34,6 +36,8 @@ contract DataConsumer {
         ,
         /*uint80 answeredInRound*/
         ) = dataFeed.latestRoundData();
-        return answer;
+
+        int256 finalAnswer = answer / PRICE_FEED_DECIMALS;
+        return finalAnswer;
     }
 }

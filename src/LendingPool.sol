@@ -34,10 +34,10 @@ contract LendingPool {
     uint256 public constant MAX_HEALTH_FACTOR = type(uint256).max;
 
     // Immutables
-    address public immutable i_dai; // 0x14866185B1962B63C3Ea9E03Bc1da838bab34C19
-    address public immutable i_usdc; // 0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E
-    address public immutable i_weth; // 0x694AA1769357215DE4FAC081bf1f309aDC325306
-    address public immutable i_wbtc; // 0x5fb1616F78dA7aFC9FF79e0371741a747D2a7F22
+    address public immutable I_DAI; // 0x14866185B1962B63C3Ea9E03Bc1da838bab34C19
+    address public immutable I_USDC; // 0xA2F78ab2355fe2f984D808B5CeE7FD0A93D5270E
+    address public immutable I_WETH; // 0x694AA1769357215DE4FAC081bf1f309aDC325306
+    address public immutable I_WBTC; // 0x5fb1616F78dA7aFC9FF79e0371741a747D2a7F22
 
     // State variables
     address[] public s_supportedTokens;
@@ -57,10 +57,10 @@ contract LendingPool {
         address wethPriceFeed,
         address wbtcPriceFeed
     ) {
-        i_dai = dai;
-        i_usdc = usdc;
-        i_weth = weth;
-        i_wbtc = wbtc;
+        I_DAI = dai;
+        I_USDC = usdc;
+        I_WETH = weth;
+        I_WBTC = wbtc;
 
         s_supportedTokens.push(dai);
         s_supportedTokens.push(usdc);
