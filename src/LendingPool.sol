@@ -24,9 +24,12 @@ contract LendingPool {
     error LendingPool__AmountIsZero();
     error LendingPool__TokenNotSupported();
     error LendingPool__TransferFailed();
+    error LendingPool__InsufficientBalance();
+    error LendingPool__HealthFactorBelowThreshold(uint256 healthFactor);
 
     // Events
     event Deposited(address indexed user, address indexed token, uint256 amount);
+    event Withdrawn(address indexed user, address indexed token, uint256 amount);
 
     // Constants
     uint256 public constant LIQUIDATION_THRESHOLD = 8e17; // 80% in 1e18 precision
@@ -120,8 +123,40 @@ contract LendingPool {
         emit Deposited(msg.sender, _assetContractAddress, _amount);
     }
 
-    function withdraw(address _assetContractAddress) external {
-        // check if removed asset, will health factor be below liquidation, if it is revert
+    /**
+     * @param _assetContractAddress The ERC20 token user intends to withdraw
+     * @param _amount The amount of token user wishes to withdraw
+     * @notice Withdraw funds from the protocol. Reverts if withdrawal would bring health factor below 1e18 (undercollateralized)
+     */
+    function withdraw(address _assetContractAddress, uint256 _amount)
+        external
+        revertIfZeroAddress(_assetContractAddress)
+        revertIfZeroAmount(_amount)
+        revertIfTokenNotSupported(_assetContractAddress)
+    {
+        uint256 userDeposit = s_userDepositsBasedOnToken[msg.sender][_assetContractAddress];
+        if (_amount > userDeposit) {
+            revert LendingPool__InsufficientBalance();
+        }
+
+        // Effects: update state before checking health factor
+        s_userDepositsBasedOnToken[msg.sender][_assetContractAddress] -= _amount;
+        s_poolReservesBasedOnToken[_assetContractAddress] -= _amount;
+
+        // Check: simulate health factor after withdrawal, revert if unhealthy
+        uint256 newHealthFactor = _calculateHealthFactor(msg.sender);
+        if (newHealthFactor < PRECISION) {
+            revert LendingPool__HealthFactorBelowThreshold(newHealthFactor);
+        }
+        s_userHealthFactor[msg.sender] = newHealthFactor;
+
+        // Interaction: transfer tokens back to user
+        bool success = IERC20(_assetContractAddress).transfer(msg.sender, _amount);
+        if (!success) {
+            revert LendingPool__TransferFailed();
+        }
+
+        emit Withdrawn(msg.sender, _assetContractAddress, _amount);
     }
 
     function borrow() external {}
