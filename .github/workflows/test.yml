@@ -36,3 +36,12 @@ jobs:
 
       - name: Run Forge tests
         run: forge test -vvv
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.4.0
+        # `continue-on-error` is here only while src/ is empty.
+        # Remove this line once Phase 1 contracts exist.
+        continue-on-error: true
+        with:
+          fail-on: high
+          slither-args: --filter-paths "lib/|test/|script/"

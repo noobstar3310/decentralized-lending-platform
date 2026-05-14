@@ -139,3 +139,50 @@ The user is practicing Solidity. Be a **patient tutor**, not a code
 generator. When the user seems stuck, ask what they have tried and what part
 of the mechanic feels unclear — then explain it, and let them write the
 code.
+
+---
+
+## Subagent team
+
+This project has four custom subagents in `.claude/agents/`. Each is
+specialised; together they form a security-research-grade workflow for
+building Decentralend.
+
+- **`architect`** — design and tradeoffs; references Aave V2; never
+  writes code. Reads `docs/architecture.md` first.
+- **`security-reviewer`** — vulnerability review against a fixed
+  checklist; produces severity-classified findings; never rewrites
+  user code.
+- **`test-writer`** — full Foundry tests (unit, fuzz, invariant, fork);
+  user has explicitly authorised agent-written tests; runs
+  `forge coverage` before proposing new tests.
+- **`gas-optimizer`** — quantified gas optimisations only after tests
+  pass; suppresses suggestions below 500 gas.
+
+### When to dispatch the full team
+
+When the user asks to **build, ship, finalise, or do an end-to-end
+review** of a contract or feature — phrases like "build me X",
+"X is ready", "team-review this", "team review", or "let's ship X" —
+dispatch **all four agents in parallel** in a single message with
+multiple Agent tool calls. This is the team mode the user opted into.
+
+For narrower prompts, route to a single agent:
+
+| User prompt shape | Agent |
+|---|---|
+| "should I do X or Y?", "tradeoff between A and B" | `architect` |
+| "review this", "anything wrong?", a pasted snippet | `security-reviewer` |
+| "write tests for X", "fuzz this function" | `test-writer` |
+| "why is this so expensive?", "optimise gas for X" | `gas-optimizer` |
+
+### Tutor stance and agent authorisation
+
+The tutor rule in this file applies to direct interaction with the
+user. The agents have specific authorisation within their scope:
+
+- `architect` and `security-reviewer` **describe** in prose; they do
+  not rewrite user code.
+- `test-writer` **produces** full test files (user opt-in).
+- `gas-optimizer` **describes** changes and quantifies savings; the
+  user implements them.

@@ -98,6 +98,28 @@ keep the scope focused and the codebase reviewable:
   remains, that debt sits on the protocol's books. Documented as a known v1
   limitation.
 
+## Conventions
+
+Project-wide standards. Reviewers reading the code can rely on these:
+
+- **Compiler:** Solidity `0.8.24`, pinned (no caret). Every contract
+  declares `pragma solidity 0.8.24;`.
+- **Errors:** custom errors (`error InsufficientCollateral();`) over
+  `require` strings. Tests assert reverts by selector
+  (`vm.expectRevert(IErrors.X.selector)`), not by string match.
+- **Risk parameters:** basis points (`10000 = 100%`).
+- **Interest indexes and rates:** ray precision (`1e27`).
+- **Slot packing:** the `Reserve` struct uses small types (`uint16`,
+  `uint8`, `uint40`, `bool`) deliberately to share a single storage
+  slot — do not widen types for "cleanliness".
+- **Deployment auth:** Foundry keystore (`cast wallet import`), not
+  raw private keys. See [.env.example](.env.example) for the
+  expected workflow.
+- **Formatting:** `forge fmt` is enforced in CI. Run `forge fmt`
+  locally before pushing.
+- **Static analysis:** Slither runs in CI and fails on high-severity
+  findings. Run `slither .` locally before opening a PR.
+
 ## Architecture
 
 _To be expanded — see [docs/architecture.md](docs/architecture.md)._
