@@ -17,15 +17,16 @@
 
 ## Phase 0 — Repo hygiene (one-time)
 
-- [ ] Pin `solc` version in `foundry.toml` (no caret) — match the
+- [x] Pin `solc` version in `foundry.toml` (no caret) — match the
       pragma in every contract.
-- [ ] Set `optimizer_runs` in `foundry.toml` (200 is the Aave default;
+- [x] Set `optimizer_runs` in `foundry.toml` (200 is the Aave default;
       tune later only with evidence).
-- [ ] Add `.env.example` listing required env vars (SEPOLIA_RPC_URL,
-      ETHERSCAN_API_KEY, PRIVATE_KEY or mnemonic).
-- [ ] CI workflow: `forge build` + `forge test` on every PR.
-- [ ] Add **Slither** to CI (fail the job on high severity).
-- [ ] Choose error style: **custom errors** (`error
+- [x] Add `.env.example` listing required env vars (SEPOLIA_RPC_URL,
+      ETHERSCAN_API_KEY, ACCOUNT, SENDER — keystore auth, no
+      `PRIVATE_KEY`).
+- [x] CI workflow: `forge build` + `forge test` on every PR.
+- [x] Add **Slither** to CI (fail the job on high severity).
+- [x] Choose error style: **custom errors** (`error
       InsufficientCollateral();`) over `require` strings — cheaper, easy
       to grep, easy to assert with `vm.expectRevert(Foo.selector)`.
 
